@@ -1,3 +1,13 @@
+import {Component} from 'react'
+
+import AppItem from '../AppItem'
+import TabItem from '../TabItem'
+
+import './index.css'
+
+const SEARCH_ICON_URL =
+  'https://assets.ccbp.in/frontend/react-js/app-store/app-store-search-img.png'
+
 const tabsList = [
   {tabId: 'SOCIAL', displayText: 'Social'},
   {tabId: 'GAMES', displayText: 'Games'},
@@ -287,4 +297,80 @@ const appsList = [
   },
 ]
 
-// Write your code here
+class AppStore extends Component {
+  state = {
+    searchInput: '',
+    activeTabId: tabsList[0].tabId,
+  }
+
+  setActiveTabId = tabId => {
+    this.setState({activeTabId: tabId})
+  }
+
+  onChangeSearchInput = event => {
+    this.setState({searchInput: event.target.value})
+  }
+
+  getActiveTabApps = searchedApps => {
+    const {activeTabId} = this.state
+    const filteredApps = searchedApps.filter(
+      eachSearchedApp => eachSearchedApp.category === activeTabId,
+    )
+
+    return filteredApps
+  }
+
+  getSearchResults = () => {
+    const {searchInput} = this.state
+    const searchResults = appsList.filter(eachApp =>
+      eachApp.appName.toLowerCase().includes(searchInput.toLowerCase()),
+    )
+
+    return searchResults
+  }
+
+  render() {
+    const {searchInput, activeTabId} = this.state
+    const searchResults = this.getSearchResults()
+    const filteredApps = this.getActiveTabApps(searchResults)
+
+    return (
+      <div className="app-container">
+        <div className="app-store">
+          <h1 className="heading">App Store</h1>
+          <div className="search-input-container">
+            <input
+              type="search"
+              placeholder="Search"
+              className="search-input"
+              value={searchInput}
+              onChange={this.onChangeSearchInput}
+            />
+            <img
+              src={SEARCH_ICON_URL}
+              alt="search icon"
+              className="search-icon"
+            />
+          </div>
+          <ul className="tabs-list">
+            {tabsList.map(eachTab => (
+              <TabItem
+                key={eachTab.tabId}
+                tabDetails={eachTab}
+                setActiveTabId={this.setActiveTabId}
+                isActive={activeTabId === eachTab.tabId}
+              />
+            ))}
+          </ul>
+          <ul className="apps-list">
+            {filteredApps.map(eachApp => (
+              <AppItem key={eachApp.appId} appDetails={eachApp} />
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+}
+
+export default AppStore
